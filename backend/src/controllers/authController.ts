@@ -5,7 +5,7 @@ import Jwt from "jsonwebtoken";
 
 export async function registerUserHandler(req: Request, res: Response) {
   try {
-    const { name, username, email, password } = await req.body;
+    const { name, email, password } = await req.body;
 
     // Here you would typically save the user to the database
     const existingUser = await User.findOne({ email });
@@ -15,7 +15,6 @@ export async function registerUserHandler(req: Request, res: Response) {
     const hashedPassword = await hashPassword(password);
     const newUser = await new User({
       name,
-      username,
       email,
       password: hashedPassword,
     }).save();
@@ -72,7 +71,6 @@ export async function loginUserHandler(req: Request, res: Response) {
       user: {
         _id: existingUser._id,
         name: existingUser.name,
-        username: existingUser.username,
         email: existingUser.email,
       },
       token,
