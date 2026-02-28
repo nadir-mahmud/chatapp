@@ -5,7 +5,10 @@ export interface IContact extends Document {
   participants: String[];
   isGroupChat: boolean;
   groupName?: string;
-  lastMessage?: mongoose.Types.ObjectId;
+  lastMessage?:
+    | mongoose.Types.ObjectId
+    | { _id: mongoose.Types.ObjectId; text: string }
+    | string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,8 +19,12 @@ const contactSchema = new Schema<IContact>(
     isGroupChat: { type: Boolean, default: false },
     groupName: String,
     lastMessage: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Message",
+      type: Schema.Types.Union,
+      of: [
+        { type: mongoose.Schema.Types.ObjectId, ref: "Message" },
+        { _id: mongoose.Types.ObjectId, text: String },
+        String,
+      ],
       default: null,
     },
   },
