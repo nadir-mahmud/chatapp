@@ -1,64 +1,55 @@
 import type { Request, Response } from "express";
 import { Contact, type IContact } from "../models/contact.js";
-import type mongoose from "mongoose";
-import { text } from "node:stream/consumers";
-import { Message } from "../models/message.js";
 
-interface MContact {
-  participants: String[];
-  isGroupChat: boolean;
-  groupName?: string;
-  lastMessage?: { _id: mongoose.Types.ObjectId; text: string } | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
 export async function createContactHandler(req: Request, res: Response) {
   try {
     const { participants, lastMessage = null } = req.body;
 
-    const message = lastMessage
-      ? await Message.findById(lastMessage).select("text")
-      : null;
-    console.log("Message found:", message);
+    if (!Array.isArray(participants) || participants.length < 2) {
+      return res.status(400).json({
+        message: "Participants must be an array of at least 2 user IDs",
+      });
+    }
 
-    const existingContact = await Contact.findOneAndUpdate(
+    const sortedParticipants = [...participants].sort();
+
+    const existingContact = (await Contact.findOneAndUpdate(
       {
-        participants: { $all: participants.sort() },
+        participants: sortedParticipants,
       },
       {
-        $set: { lastMessage: message ? message.text : null },
+        $set: { lastMessage },
         $setOnInsert: {
-          participants: participants.sort(),
-          isGroupChat: participants.length > 2,
+          participants: sortedParticipants,
+          isGroup: participants.length > 2,
         },
       },
+
       {
-        returnDocument: "after",
+        new: true,
         upsert: true,
       },
-    );
+    )) as IContact;
 
-    if (existingContact) {
-      console.log("Contact found:", existingContact);
-
-      return res.status(200).json({
+    const isCreated =
+      existingContact.createdAt.getTime() ===
+      existingContact.updatedAt.getTime();
+    if (isCreated) {
+      res.status(201).json({
+        success: true,
+        message: "Contact created successfully",
+        contact: existingContact,
+      });
+    } else {
+      res.status(200).json({
         success: true,
         message: "Contact already exists",
         contact: existingContact,
-        text: existingContact.lastMessage ? existingContact.lastMessage : "",
       });
     }
-    const newContact = new Contact({
-      participants: participants.sort(),
-      lastMessage: lastMessage || null,
-    }).save();
-
-    res.status(201).json({
-      success: true,
-      message: "Contact created successfully",
-      newContact,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+  } catch (error: any) {
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 }
