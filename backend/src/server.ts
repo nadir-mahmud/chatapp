@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 import authRoute from "./routes/authRoute.js";
 import contactRoute from "./routes/contactRoute.js";
@@ -16,9 +17,11 @@ connectDB();
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 const corsOptions = {
   origin: "*", // Allow only this origin
   methods: "GET,POST,PUT,DELETE", // Allowed HTTP methods
+  credentials: true, // Allow cookies to be sent
 };
 
 app.use(cors(corsOptions));

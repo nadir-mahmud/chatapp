@@ -9,7 +9,10 @@ import {
   createUserRegisterSchema,
   createUserLoginSchema,
 } from "../zodSchemas/user.schema.js";
-import { createContactHandler } from "../controllers/contactController.js";
+import {
+  createContactHandler,
+  getContactsHandler,
+} from "../controllers/contactController.js";
 
 const router = Router();
 
@@ -18,5 +21,7 @@ router.put(
 
   createContactHandler,
 );
+
+router.get("/get_contacts", getContactsHandler);
 
 export default router;

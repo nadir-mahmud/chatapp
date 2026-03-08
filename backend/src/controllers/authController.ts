@@ -27,6 +27,13 @@ export async function registerUserHandler(req: Request, res: Response) {
       },
     );
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.status(201).json({
       success: true,
       message: "User registered successfully",
@@ -64,8 +71,15 @@ export async function loginUserHandler(req: Request, res: Response) {
       },
     );
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     // Respond with user data and token
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: "User logged in successfully",
       user: {
@@ -73,7 +87,6 @@ export async function loginUserHandler(req: Request, res: Response) {
         name: existingUser.name,
         email: existingUser.email,
       },
-      token,
     });
   } catch (error) {
     console.error("Login Error:", error);
