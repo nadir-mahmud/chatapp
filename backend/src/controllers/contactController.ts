@@ -56,9 +56,9 @@ export async function createContactHandler(req: Request, res: Response) {
 
 export async function getContactsHandler(req: Request, res: Response) {
   try {
-    const userId = "6999e617eded7df788b23101" as mongoose.Types.ObjectId; // Replace with req.user.userId in production
+    const userId = req.user.userId; // Replace with req.user.userId in production
     const { limit = 20, lastTimestamp } = req.query;
-
+    console.log(userId, "I am userId");
     // 1. Build the query
     const query: any = { participants: userId };
 

@@ -17,9 +17,11 @@ connectDB();
 
 const app = express();
 app.use(express.json());
-app.use(cookieParser());
+
+//app.use(cookieParser());
+
 const corsOptions = {
-  origin: "*", // Allow only this origin
+  origin: "http://localhost:3000", // Allow only this origin
   methods: "GET,POST,PUT,DELETE", // Allowed HTTP methods
   credentials: true, // Allow cookies to be sent
 };

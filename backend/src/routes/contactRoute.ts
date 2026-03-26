@@ -1,18 +1,10 @@
 import { Router } from "express";
 
 import {
-  registerUserHandler,
-  loginUserHandler,
-} from "../controllers/authController.js";
-import { validate } from "../middleware/validate.js";
-import {
-  createUserRegisterSchema,
-  createUserLoginSchema,
-} from "../zodSchemas/user.schema.js";
-import {
   createContactHandler,
   getContactsHandler,
 } from "../controllers/contactController.js";
+import { authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -22,6 +14,6 @@ router.put(
   createContactHandler,
 );
 
-router.get("/get_contacts", getContactsHandler);
+router.get("/get_contacts", authMiddleware, getContactsHandler);
 
 export default router;

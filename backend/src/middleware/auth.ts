@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import Jwt from "jsonwebtoken";
+import { string } from "zod";
 
 interface JwtUserPayload {
   userId: string;
@@ -11,7 +12,12 @@ export function authMiddleware(
   next: NextFunction,
 ) {
   try {
-    const token = req.cookies.token;
+    let token: string | undefined;
+    if (req.headers.authorization?.startsWith("Bearer")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    console.log(req.headers.cookie, "I am cookie header from middleware");
 
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -21,7 +27,7 @@ export function authMiddleware(
       token,
       process.env.JWT_SECRET_KEY as string,
     ) as JwtUserPayload;
-
+    console.log(decoded, "I am decoded");
     req.user = decoded;
 
     next();
