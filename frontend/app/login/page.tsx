@@ -1,36 +1,33 @@
 "use client";
 import React, { useState } from "react";
 
-import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
-import { useForm } from "react-hook-form";
+import { Form, useForm } from "react-hook-form";
+import { loginAction } from "@/actions/auth";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
 
   const onSubmit = async () => {
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/login", {
-        email,
-        password,
-      });
-      if (res && res.data.success) {
-        toast.success(res.data && res.data.message);
+      const email = watch("email") as string;
+      const password = watch("password") as string;
+      const res = (await loginAction(email, password)) as any;
+      console.log(res, "I am login response");
+      if (res) {
+        toast.success(res && res.message);
         // setAuth({
         //   ...auth,
         //   user: res.data.user,
         //   token: res.data.token,
         // });
-        //localStorage.setItem("auth", JSON.stringify(res.data));
-        console.log(res.headers["set-cookie"], "I am login response");
-        //window.location.href = "/message_dashboard";
+        window.location.href = "/message_dashboard";
       } else {
         console.log("Hello");
         toast.error("Email or Password is not correct!");
@@ -68,7 +65,6 @@ const Login = () => {
             id="email"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Enter your email"
-            onChange={(e) => setEmail(e.target.value)}
           />
           {errors.email && (
             <p className="block text-red-500 text-sm mt-2 ml-3">
@@ -94,7 +90,6 @@ const Login = () => {
             id="password"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Enter your password"
-            onChange={(e) => setPassword(e.target.value)}
           />
           {errors.password && (
             <p className="block text-red-500 text-sm my-2 ml-3">

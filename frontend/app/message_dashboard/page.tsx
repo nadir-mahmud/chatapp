@@ -1,3 +1,4 @@
+"use server";
 import { MessageContainerHeader } from "@/components/message_container_header";
 import { ChatHeader } from "@/components/chat_header";
 import { ContactList } from "@/components/contact_list";
@@ -35,7 +36,7 @@ async function MessageDashboard() {
   async function getContacts(): Promise<Contact[]> {
     const cookie = await cookies();
     const token = cookie.get("token")?.value;
-    console.log(cookie.getAll(), "I am cookie header");
+    console.log(token, "I am cookie header");
     const { data } = await axios.get<ContactResponse>(
       "http://localhost:8080/api/contact/get_contacts",
       {
