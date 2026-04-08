@@ -3,24 +3,28 @@ import Link from "next/link";
 import { useRef, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { Contact } from "@/types/Contact";
+import { useContact } from "@/hooks/useContacts";
 
 interface ContactProps {
   contacts: Contact[];
+  user: { userId: string; name: string };
 }
 
 interface Message {
   message: string;
   to: string;
   from: string;
+  senderName: string;
 }
 
-export function Message({ contacts }: ContactProps) {
+export function Message({ contacts, user }: ContactProps) {
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<string[]>([]);
   const socketRef = useRef<Socket | null>(null);
+  const contact = useContact((state) => state.contact);
 
   useEffect(() => {
-    const socket = io("https://localhost:8080");
+    const socket = io("http://localhost:8080");
 
     socketRef.current = socket;
 
@@ -33,7 +37,7 @@ export function Message({ contacts }: ContactProps) {
       });
     });
 
-    socket.on("", (data: Message) => {
+    socket.on(user.userId, (data: Message) => {
       console.log("Received:", data);
       setMessages((prev) => [...prev, data.message]);
     });
@@ -44,23 +48,22 @@ export function Message({ contacts }: ContactProps) {
   }, []);
 
   const sendMessage = () => {
+    console.log("id available", contact.participants[0]?._id);
     socketRef.current?.emit("admin", {
       message: message,
-      to: "penguin",
-      from: "nadirmahmud5@gmail.com",
+      to: contact.participants[0]?._id,
+      from: user.userId,
+      senderName: user.name,
     });
     setMessages((prev) => [...prev, message]);
   };
   return (
     <>
-      <div className="flex-1 overflow-y-auto bg-[url('/bg.jpg')] backdrop-blur-sm bg-cover bg-center bg-no-repeat">
+      <div className="flex-1 bg-[url('/bg.jpg')] backdrop-blur-sm bg-cover bg-center bg-no-repeat">
         <div className="w-full h-[calc(100vh-128px)] overflow-y-auto">
           <ul>
             {messages.map((message) => (
-              <li
-                key={message}
-                className="p-4 border-style:none cursor-pointer rounded-xl m-4  hover:bg-gray-200 dark:hover:bg-gray-700"
-              >
+              <li className="p-4 border-style:none cursor-pointer rounded-xl m-4  hover:bg-gray-200 dark:hover:bg-gray-700">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full">
                     <img src="/user.png" alt="user" />

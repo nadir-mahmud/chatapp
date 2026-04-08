@@ -11,9 +11,10 @@ import { Message } from "@/components/messages";
 
 interface props {
   contacts: Contact[];
+  user: { userId: string; name: string };
 }
 
-function MessageDashboard({ contacts }: props) {
+function MessageDashboard({ contacts, user }: props) {
   const isMobile = useIsMobile();
 
   return (
@@ -32,8 +33,8 @@ function MessageDashboard({ contacts }: props) {
 
       {/* Chat Sidebar -> Message Container */}
       <div className="hidden h-screen flex-col bg-gray-100 dark:bg-gray-900 md:w-2/3 md:flex">
-        <MessageContainerHeader />
-        <Message contacts={contacts} />
+        <MessageContainerHeader contacts={contacts} />
+        <Message contacts={contacts} user={user} />
       </div>
     </div>
   );

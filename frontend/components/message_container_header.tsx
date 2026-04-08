@@ -1,8 +1,10 @@
-import * as React from "react";
+import { Contact } from "@/types/Contact";
 
-export interface IMessageContainerHeaderProps {}
+export function MessageContainerHeader({ contacts }: { contacts: Contact[] }) {
+  // if (contacts.length === 0) {
+  //   return <div className="animate-pulse">Loading header...</div>;
+  // }
 
-export function MessageContainerHeader(props: IMessageContainerHeaderProps) {
   return (
     <div>
       <li className="p-4 border-style:none cursor-pointer rounded-xl text-black dark:text-white">
@@ -11,7 +13,7 @@ export function MessageContainerHeader(props: IMessageContainerHeaderProps) {
             <img src="/user.png" alt="user" />
           </div>
           <div>
-            <p className="font-semibold">John Doe</p>
+            <p className="font-semibold">{contacts[0].participants[0]?.name}</p>
           </div>
         </div>
       </li>

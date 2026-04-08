@@ -27,9 +27,9 @@ const Login = () => {
         //   user: res.data.user,
         //   token: res.data.token,
         // });
+
         window.location.href = "/message_dashboard";
       } else {
-        console.log("Hello");
         toast.error("Email or Password is not correct!");
       }
     } catch (error) {
