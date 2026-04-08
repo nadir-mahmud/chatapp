@@ -1,5 +1,4 @@
 import mongoose, { model, Schema, type Document } from "mongoose";
-import { Message } from "./message.js";
 
 export interface IContact extends Document {
   participants: String[];

@@ -4,6 +4,7 @@ interface Message {
   message: string;
   to: string;
   from: string;
+  senderName: string;
 }
 export const setupSocket = (io: Server) => {
   io.on("connection", (socket) => {
@@ -12,14 +13,14 @@ export const setupSocket = (io: Server) => {
 
     // Example: Chat Message
     socket.on("admin", (data: Message) => {
-      console.log(typeof data);
-      console.log(`Message from ${socket.id}: ${data.from}`);
+      console.log(data.message);
+      console.log(`Message from ${socket.id}: ${data.to}`);
 
       io.to("penguin").emit(data.to, data);
     });
 
-    // socket.on("disconnect", () => {
-    //   console.log("User Disconnected", socket.id);
-    // });
+    socket.on("disconnect", () => {
+      console.log("User Disconnected", socket.id);
+    });
   });
 };
