@@ -10,14 +10,15 @@ import {
   createUserLoginSchema,
 } from "../zodSchemas/user.schema.js";
 
-import { sendMessageHandler } from "../controllers/messageController.js";
+import {
+  getMessagessHandler,
+  sendMessageHandler,
+} from "../controllers/messageController.js";
 
 const router = Router();
 
-router.post(
-  "/send_message",
+router.post("/send_message", sendMessageHandler);
 
-  sendMessageHandler,
-);
+router.get("/get_messages/:contactId", getMessagessHandler);
 
 export default router;
