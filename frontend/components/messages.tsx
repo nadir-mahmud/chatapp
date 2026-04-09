@@ -4,13 +4,15 @@ import { useRef, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { Contact } from "@/types/Contact";
 import { useContact } from "@/hooks/useContacts";
+import { useMessages } from "@/hooks/useMessages";
+import { type Message } from "@/types/Message";
 
 interface ContactProps {
   contacts: Contact[];
   user: { userId: string; name: string };
 }
 
-interface Message {
+interface SocketMessage {
   message: string;
   to: string;
   from: string;
@@ -19,9 +21,10 @@ interface Message {
 
 export function Message({ contacts, user }: ContactProps) {
   const [message, setMessage] = useState<string>("");
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const socketRef = useRef<Socket | null>(null);
   const contact = useContact((state) => state.contact);
+  const zustandStoreMessages = useMessages((state) => state.messages);
 
   useEffect(() => {
     const socket = io("http://localhost:8080");
@@ -37,15 +40,19 @@ export function Message({ contacts, user }: ContactProps) {
       });
     });
 
-    socket.on(user.userId, (data: Message) => {
+    socket.on(user.userId, (data: SocketMessage) => {
       console.log("Received:", data);
-      setMessages((prev) => [...prev, data.message]);
+      //setMessages((prev) => [...prev, data.message]);
     });
 
     return () => {
       socket.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    setMessages(zustandStoreMessages);
+  }, [zustandStoreMessages]);
 
   const sendMessage = () => {
     console.log("id available", contact.participants[0]?._id);
@@ -55,7 +62,7 @@ export function Message({ contacts, user }: ContactProps) {
       from: user.userId,
       senderName: user.name,
     });
-    setMessages((prev) => [...prev, message]);
+    // setMessages((prev) => [...prev, message]);
   };
   return (
     <>
@@ -71,7 +78,7 @@ export function Message({ contacts, user }: ContactProps) {
                   <div>
                     <p className="font-semibold">{`anonymous`}</p>
                     <p className="text-sm text-gray-500">
-                      {message || "No messages yet"}
+                      {message.text || "No messages yet"}
                     </p>
                   </div>
                 </div>

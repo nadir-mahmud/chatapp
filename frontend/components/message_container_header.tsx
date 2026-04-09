@@ -1,9 +1,11 @@
+import { useContact } from "@/hooks/useContacts";
 import { Contact } from "@/types/Contact";
 
 export function MessageContainerHeader({ contacts }: { contacts: Contact[] }) {
   // if (contacts.length === 0) {
   //   return <div className="animate-pulse">Loading header...</div>;
   // }
+  const clickedContact = useContact((state) => state.contact);
 
   return (
     <div>
@@ -13,7 +15,11 @@ export function MessageContainerHeader({ contacts }: { contacts: Contact[] }) {
             <img src="/user.png" alt="user" />
           </div>
           <div>
-            <p className="font-semibold">{contacts[0].participants[0]?.name}</p>
+            <p className="font-semibold">
+              {clickedContact?.participants[0]?.name ||
+                contacts[0]?.participants[0]?.name ||
+                "No contacts created yet"}
+            </p>
           </div>
         </div>
       </li>

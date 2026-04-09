@@ -25,7 +25,7 @@ function MessageDashboard({ contacts, user }: props) {
         <ChatHeader />
 
         {/* Chat Sidebar -> Chat search Bar */}
-        <ChatSearchBar />
+        <ChatSearchBar user={user} />
 
         {/* Chat Sidebar -> Contact List */}
         <ContactList contacts={contacts} />

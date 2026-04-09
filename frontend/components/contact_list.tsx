@@ -1,7 +1,8 @@
+import { getMessages } from "@/actions/get_messages";
 import { useContact } from "@/hooks/useContacts";
+import { useMessages } from "@/hooks/useMessages";
 import { Contact } from "@/types/Contact";
-import { useRef } from "react";
-import { set } from "react-hook-form";
+import { useEffect } from "react";
 
 interface ContactProps {
   contacts: Contact[];
@@ -9,9 +10,27 @@ interface ContactProps {
 
 export function ContactList({ contacts }: ContactProps) {
   const setContact = useContact((state) => state.setContact);
-  setContact(contacts[0]);
-  const handleContactClick = (contact: Contact) => {
+  const setMessages = useMessages((state) => state.setMessages);
+  const selectedContact = useContact((state) => state.contact); // Get current selection
+
+  const loadMessages = async () => {
+    const { messages } = await getMessages(selectedContact._id);
+    setMessages(messages);
+  };
+
+  useEffect(() => {
+    // Only set the default if we have contacts and nothing is selected yet
+    if (contacts.length > 0 && !selectedContact) {
+      setContact(contacts[0]);
+    }
+    if (!selectedContact?._id) return;
+  }, [contacts, setContact, selectedContact?._id]);
+
+  const handleContactClick = async (contact: Contact) => {
     setContact(contact);
+    const { messages } = await getMessages(contact._id);
+    console.log(await messages);
+    setMessages(messages);
   };
 
   return (
@@ -33,18 +52,16 @@ export function ContactList({ contacts }: ContactProps) {
                 </div>
                 <div>
                   <p className="font-semibold">
-                    {contact.participants[0].name}
+                    {contact.participants[0]?.name}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {contact.lastMessage.text || "No messages yet"}
+                    {contact.lastMessage?.text || "No messages yet"}
                   </p>
                 </div>
               </div>
             </li>
           </button>
         ))}
-
-        {/* More contacts... */}
       </ul>
     </div>
   );
