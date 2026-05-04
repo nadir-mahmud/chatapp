@@ -4,7 +4,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { searchContacts } from "@/actions/search"; // Import the Action
 import { User } from "@/types/User";
 import { createContact } from "@/actions/create_contact";
-import { useContact } from "@/hooks/useContacts";
+import { useContact } from "@/hooks/useSingleContact";
 
 export function ChatSearchBar({
   user,

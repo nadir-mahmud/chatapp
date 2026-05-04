@@ -6,11 +6,7 @@ export interface Contact {
       name: string;
     },
   ];
-  lastMessage: {
-    _id: string;
-    text: string;
-    createdAt: string;
-  };
+  lastMessage: string;
   updatedAt: string;
   createdAt: string;
 }

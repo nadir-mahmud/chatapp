@@ -3,47 +3,36 @@ import Link from "next/link";
 import { useRef, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { Contact } from "@/types/Contact";
-import { useContact } from "@/hooks/useContacts";
+import { useContact } from "@/hooks/useSingleContact";
 import { useMessages } from "@/hooks/useMessages";
-import { type Message } from "@/types/Message";
+import { Message } from "@/types/Message";
+import { refreshContacts } from "@/actions/refresh_contacts";
+import { getContacts } from "@/actions/get_contacts";
+import { useAllContacts } from "@/hooks/useAllContacts";
 
 interface ContactProps {
   contacts: Contact[];
   user: { userId: string; name: string };
+  initialMessages: Message[];
 }
 
-interface SocketMessage {
-  message: string;
-  to: string;
-  from: string;
-  senderName: string;
-}
-
-export function Message({ contacts, user }: ContactProps) {
+export function MessageContainer({
+  contacts,
+  user,
+  initialMessages,
+}: ContactProps) {
+  //console.log(initialMessages, "Message");
   const [message, setMessage] = useState<string>("");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const socketRef = useRef<Socket | null>(null);
   const contact = useContact((state) => state.contact);
+  const setAllContacts = useAllContacts((state) => state.setAllContacts);
+  const zustandSetMessages = useMessages((state) => state.setMessages);
   const zustandStoreMessages = useMessages((state) => state.messages);
 
   useEffect(() => {
     const socket = io("http://localhost:8080");
-
     socketRef.current = socket;
-
-    socket.on("connect", () => {
-      console.log("Connected:", socket.id);
-
-      //join user room
-      socket.emit("join", {
-        userId: "nadirmahmud5@gmail.com",
-      });
-    });
-
-    socket.on(user.userId, (data: SocketMessage) => {
-      console.log("Received:", data);
-      //setMessages((prev) => [...prev, data.message]);
-    });
 
     return () => {
       socket.disconnect();
@@ -51,18 +40,52 @@ export function Message({ contacts, user }: ContactProps) {
   }, []);
 
   useEffect(() => {
+    zustandSetMessages(initialMessages);
+    console.log(initialMessages, "I am in");
+  }, [initialMessages.length > 0]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket || !contact?._id) return;
+
+    // Join the specific room for this chat
+    socket.emit("join_room", contact._id);
+
+    // Dynamic Listener: Use a generic event name like "new_message"
+    // rather than the userId, unless your backend specifically emits to userId.
+    const messageHandler = (data: Message) => {
+      console.log("Received via Socket:", data);
+      setMessages((prev) => [...prev, data]);
+    };
+
+    socket.on(user.userId, messageHandler); // Industry standard naming
+
+    // Cleanup: Remove listener when switching contacts
+    return () => {
+      socket.off(user.userId, messageHandler);
+    };
+  }, [contact?._id]);
+
+  useEffect(() => {
     setMessages(zustandStoreMessages);
   }, [zustandStoreMessages]);
-
-  const sendMessage = () => {
-    console.log("id available", contact.participants[0]?._id);
-    socketRef.current?.emit("admin", {
-      message: message,
-      to: contact.participants[0]?._id,
-      from: user.userId,
-      senderName: user.name,
-    });
-    // setMessages((prev) => [...prev, message]);
+  useEffect(() => {
+    const loadContacts = async () => {
+      const { contacts } = await getContacts();
+      setAllContacts(contacts);
+    };
+    loadContacts();
+  }, [messages]);
+  const sendMessage = async () => {
+    const payload: Message = {
+      contactId: contact._id,
+      text: message,
+      receiver: contact.participants[0]?._id,
+      sender: user.userId,
+    };
+    socketRef.current?.emit("admin", payload);
+    setMessages((prev) => [...prev, payload]);
+    setMessage("");
   };
   return (
     <>

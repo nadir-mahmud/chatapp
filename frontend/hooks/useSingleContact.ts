@@ -10,7 +10,7 @@ export const useContact = create<ContactStore>((set) => ({
   contact: {
     _id: "",
     participants: [{ _id: "", name: "" }],
-    lastMessage: { _id: "", text: "", createdAt: "" },
+    lastMessage: "",
     createdAt: "",
     updatedAt: "",
   },

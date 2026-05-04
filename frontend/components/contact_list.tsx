@@ -1,22 +1,42 @@
 import { getMessages } from "@/actions/get_messages";
-import { useContact } from "@/hooks/useContacts";
+import { useContact } from "@/hooks/useSingleContact";
 import { useMessages } from "@/hooks/useMessages";
 import { Contact } from "@/types/Contact";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useAllContacts } from "@/hooks/useAllContacts";
+import { getContacts } from "@/actions/get_contacts";
 
 interface ContactProps {
   contacts: Contact[];
 }
 
 export function ContactList({ contacts }: ContactProps) {
+  const [contactLists, setContactLists] = useState<Contact[]>(contacts);
   const setContact = useContact((state) => state.setContact);
   const setMessages = useMessages((state) => state.setMessages);
   const selectedContact = useContact((state) => state.contact); // Get current selection
+  const zustandContacts = useAllContacts((state) => state.contacts);
 
   const loadMessages = async () => {
     const { messages } = await getMessages(selectedContact._id);
     setMessages(messages);
   };
+
+  useEffect(() => {
+    setContactLists(zustandContacts);
+  }, [zustandContacts]);
+
+  useEffect(() => {
+    setContactLists(contacts);
+  }, [contacts.length > 0]);
+
+  useEffect(() => {
+    const loadContacts = async () => {
+      const { contacts } = await getContacts();
+      setContactLists(contacts);
+    };
+    loadContacts();
+  }, []);
 
   useEffect(() => {
     // Only set the default if we have contacts and nothing is selected yet
@@ -29,14 +49,14 @@ export function ContactList({ contacts }: ContactProps) {
   const handleContactClick = async (contact: Contact) => {
     setContact(contact);
     const { messages } = await getMessages(contact._id);
-    console.log(await messages);
+
     setMessages(messages);
   };
 
   return (
     <div className="w-full h-[calc(100vh-128px)] overflow-y-auto">
       <ul>
-        {contacts.map((contact) => (
+        {contactLists.map((contact) => (
           <button
             onClick={() => handleContactClick(contact)}
             className="w-full"
@@ -55,7 +75,7 @@ export function ContactList({ contacts }: ContactProps) {
                     {contact.participants[0]?.name}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {contact.lastMessage?.text || "No messages yet"}
+                    {contact.lastMessage || "No messages yet"}
                   </p>
                 </div>
               </div>

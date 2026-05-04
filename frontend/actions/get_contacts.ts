@@ -1,3 +1,5 @@
+"use server";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
 export interface Contact {
@@ -30,20 +32,20 @@ export async function getContacts() {
   const token = cookieStore.get("token")?.value;
 
   // Use native fetch for Next.js caching & revalidation benefits
-  const res = await fetch(`${API_URL}/api/contact/get_contacts`, {
+  const res: Response = await fetch(`${API_URL}/api/contact/get_contacts`, {
     headers: {
       Authorization: `Bearer ${token}`,
       // Next.js automatically handles cookie forwarding in many cases,
       // but manual inclusion is fine for custom backends
       Cookie: cookieStore.toString(),
     },
+    cache: "reload",
     // Industry standard: define how long this data stays fresh
-    next: { revalidate: 60, tags: ["contacts"] },
   });
 
   if (!res.ok) {
     // In production, we don't just log; we throw for the Error Boundary to catch
-    throw new Error(`Failed to fetch contacts: ${res.statusText}`);
+    throw new Error(`Failed to fetch contacts: ${res.status}`);
   }
 
   return res.json();

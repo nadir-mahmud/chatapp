@@ -3,11 +3,7 @@ const API_URL = process.env.BACKEND_URL || "http://localhost:8080";
 
 export async function getMessages(contactId: string) {
   // Use native fetch for Next.js caching & revalidation benefits
-  console.log(contactId, "hellllo");
-  console.log(
-    "SENDING REQUEST TO:",
-    `${API_URL}/api/message/get_messages/${contactId}`,
-  );
+
   const res = await fetch(`${API_URL}/api/message/get_messages/${contactId}`, {
     method: "GET", // Specify the method
     headers: {
@@ -20,7 +16,6 @@ export async function getMessages(contactId: string) {
     throw new Error(`Failed to fetch contacts: ${res.statusText}`);
   }
   const data = await res.json();
-  console.log(data);
 
   return data;
 }

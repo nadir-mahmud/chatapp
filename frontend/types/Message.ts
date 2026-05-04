@@ -1,9 +1,11 @@
+type messageStatus = "sent" | "delivered" | "seen";
 export interface Message {
-  _id: string;
   contactId: string;
   sender: string;
+  receiver: string;
+  status?: messageStatus;
   text: string;
-  readBy: string;
-  createdAt: string;
-  updatedAt: string;
+  readBy?: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }

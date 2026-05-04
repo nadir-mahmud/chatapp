@@ -1,4 +1,4 @@
-import { useContact } from "@/hooks/useContacts";
+import { useContact } from "@/hooks/useSingleContact";
 import { Contact } from "@/types/Contact";
 
 export function MessageContainerHeader({ contacts }: { contacts: Contact[] }) {
