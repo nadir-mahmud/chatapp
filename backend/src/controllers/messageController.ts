@@ -5,7 +5,7 @@ export async function sendMessageHandler(req: Request, res: Response) {
   try {
     const { contactId, sender, text } = await req.body;
 
-    const newContact = await new Message({
+    const newMessage = await new Message({
       contactId,
       sender,
       text,
@@ -13,8 +13,8 @@ export async function sendMessageHandler(req: Request, res: Response) {
 
     res.status(201).json({
       success: true,
-      message: "Message sent successfully",
-      newContact,
+
+      message: newMessage,
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
@@ -36,7 +36,7 @@ export async function getMessagessHandler(req: Request, res: Response) {
     // }
 
     const messages: IMessage[] = (await Message.find(query)
-      .sort({ updatedAt: -1 }) // Newest first
+      .sort({ updatedAt: 1 }) // Newest first
       .limit(Number(limit))
       .populate({
         path: "sender",
@@ -45,7 +45,7 @@ export async function getMessagessHandler(req: Request, res: Response) {
       .lean()) as IMessage[];
 
     // 3. Get the timestamp of the last item to send back as the next cursor
-    console.log(messages);
+
     const nextCursor =
       messages.length > 0 ? messages[messages.length - 1]!.updatedAt : null;
 

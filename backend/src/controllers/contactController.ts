@@ -3,7 +3,7 @@ import { Contact, type IContact } from "../models/contact.js";
 
 export async function createContactHandler(req: Request, res: Response) {
   try {
-    const { participants, lastMessage = null } = req.body;
+    const { participants, lastMessage = "" } = req.body;
 
     if (!Array.isArray(participants) || participants.length < 2) {
       return res.status(400).json({
@@ -75,7 +75,6 @@ export async function getContactsHandler(req: Request, res: Response) {
         select: "name",
         match: { _id: { $ne: userId } },
       })
-      .populate("lastMessage", "text createdAt")
       .lean()) as IContact[];
 
     // 3. Get the timestamp of the last item to send back as the next cursor
