@@ -58,7 +58,7 @@ export async function getContactsHandler(req: Request, res: Response) {
   try {
     const userId = req.user.userId; // Replace with req.user.userId in production
     const { limit = 20, lastTimestamp } = req.query;
-    console.log(userId, "I am userId");
+    //console.log(userId, "I am userId");
     // 1. Build the query
     const query: any = { participants: userId };
 

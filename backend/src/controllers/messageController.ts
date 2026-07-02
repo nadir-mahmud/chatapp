@@ -38,10 +38,6 @@ export async function getMessagessHandler(req: Request, res: Response) {
     const messages: IMessage[] = (await Message.find(query)
       .sort({ updatedAt: 1 }) // Newest first
       .limit(Number(limit))
-      .populate({
-        path: "sender",
-        select: "_id name",
-      })
       .lean()) as IMessage[];
 
     // 3. Get the timestamp of the last item to send back as the next cursor

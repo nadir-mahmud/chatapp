@@ -40,8 +40,8 @@ export const setupSocket = (io: Server) => {
         );
 
         console.log(newMessage);
-        console.log("📂 Database Name:", Message.db.name);
-        console.log("📑 Collection Name:", Message.collection.name);
+        // console.log("📂 Database Name:", Message.db.name);
+        // console.log("📑 Collection Name:", Message.collection.name);
       } catch (error) {
         console.log(error);
       }
