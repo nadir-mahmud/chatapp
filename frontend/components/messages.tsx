@@ -9,6 +9,9 @@ import { Message } from "@/types/Message";
 import { refreshContacts } from "@/actions/refresh_contacts";
 import { getContacts } from "@/actions/get_contacts";
 import { useAllContacts } from "@/hooks/useAllContacts";
+import { SenderMessage } from "./senderMessage";
+import { ReceiverMessage } from "./receiverMessage";
+import { getMessages } from "@/actions/get_messages";
 
 interface ContactProps {
   contacts: Contact[];
@@ -26,9 +29,16 @@ export function MessageContainer({
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const socketRef = useRef<Socket | null>(null);
   const contact = useContact((state) => state.contact);
+  const updateContact = useContact((state) => state.updateContact);
   const setAllContacts = useAllContacts((state) => state.setAllContacts);
   const zustandSetMessages = useMessages((state) => state.setMessages);
   const zustandStoreMessages = useMessages((state) => state.messages);
+  const messageDivRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (messageDivRef.current) {
+      messageDivRef.current.scrollTop = messageDivRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   useEffect(() => {
     const socket = io("http://localhost:8080");
@@ -38,6 +48,17 @@ export function MessageContainer({
       socket.disconnect();
     };
   }, []);
+  useEffect(() => {
+    if (contact?._id) {
+      const loadMessages = async () => {
+        const data = await getMessages(contact._id);
+        setMessages(data.messages);
+        zustandSetMessages(data.messages);
+      };
+      loadMessages();
+      console.log(messages, "I am messages");
+    }
+  }, [contact?._id]);
 
   useEffect(() => {
     zustandSetMessages(initialMessages);
@@ -78,38 +99,55 @@ export function MessageContainer({
   }, [messages]);
   const sendMessage = async () => {
     const payload: Message = {
-      contactId: contact._id,
+      contactId: contact?._id || null,
       text: message,
-      receiver: contact.participants[0]?._id,
+      receiver: contact?.participants[0]?._id || null,
       sender: user.userId,
     };
     socketRef.current?.emit("admin", payload);
     setMessages((prev) => [...prev, payload]);
+    const updatedContact: any = {
+      ...contact,
+      lastMessage: message,
+      updatedAt: new Date().toISOString(),
+    };
+    updateContact(updatedContact);
     setMessage("");
   };
   return (
     <>
-      <div className="flex-1 bg-[url('/bg.jpg')] backdrop-blur-sm bg-cover bg-center bg-no-repeat">
-        <div className="w-full h-[calc(100vh-128px)] overflow-y-auto">
+      <div className="flex-1 bg-rose-100 dark:bg-gray-900">
+        <div className="flex flex-col-reverse w-full overflow-y-auto">
           <ul>
             {messages.map((message) => (
-              <li className="p-4 border-style:none cursor-pointer rounded-xl m-4  hover:bg-gray-200 dark:hover:bg-gray-700">
-                <div className="flex items-center gap-4">
+              <li
+                className="p-4 border-style:none cursor-pointer rounded-xl m-4 text-black dark:text-white"
+                key={message.createdAt?.toString()}
+              >
+                {/* <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full">
                     <img src="/user.png" alt="user" />
                   </div>
                   <div>
-                    <p className="font-semibold">{`anonymous`}</p>
+                    <p className="font-semibold">{message.sender.name}</p>
                     <p className="text-sm text-gray-500">
                       {message.text || "No messages yet"}
                     </p>
                   </div>
-                </div>
+                </div> */}
+
+                {/*<p>{user.userId === message.sender ? "You" : user.name}</p>*/}
+                {message.sender === user.userId ? (
+                  <SenderMessage message={message.text} />
+                ) : (
+                  <ReceiverMessage message={message.text} />
+                )}
               </li>
             ))}
 
             {/* More contacts... */}
           </ul>
+          <div ref={messageDivRef} />
         </div>
       </div>
       <div className="p-4 items-center">

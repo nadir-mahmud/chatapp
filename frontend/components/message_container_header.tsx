@@ -16,9 +16,7 @@ export function MessageContainerHeader({ contacts }: { contacts: Contact[] }) {
           </div>
           <div>
             <p className="font-semibold">
-              {clickedContact?.participants[0]?.name ||
-                contacts[0]?.participants[0]?.name ||
-                "No contacts created yet"}
+              {clickedContact?.participants[0]?.name}
             </p>
           </div>
         </div>

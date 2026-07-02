@@ -18,7 +18,7 @@ export function ContactList({ contacts }: ContactProps) {
   const zustandContacts = useAllContacts((state) => state.contacts);
 
   const loadMessages = async () => {
-    const { messages } = await getMessages(selectedContact._id);
+    const { messages } = await getMessages(selectedContact!._id);
     setMessages(messages);
   };
 

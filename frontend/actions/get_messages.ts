@@ -9,6 +9,7 @@ export async function getMessages(contactId: string) {
     headers: {
       "Content-Type": "application/json", // Crucial for your backend to parse the body
     },
+    cache: "reload", // Disable caching for real-time data
   });
 
   if (!res.ok) {

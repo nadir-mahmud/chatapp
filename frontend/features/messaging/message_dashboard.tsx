@@ -11,6 +11,7 @@ import { MessageContainer } from "@/components/messages";
 import { getContacts } from "@/actions/get_contacts";
 import { useEffect, useState } from "react";
 import { Message } from "@/types/Message";
+import { useContact } from "@/hooks/useSingleContact";
 
 interface props {
   contacts: Contact[];
@@ -20,6 +21,7 @@ interface props {
 
 function MessageDashboard({ contacts, user, initialMessages }: props) {
   const [contactLists, setContactLists] = useState<Contact[]>(contacts);
+  const clickedContact = useContact((state) => state.contact);
   const isMobile = useIsMobile();
   //console.log(initialMessages, "messageDashboard");
   useEffect(() => {
@@ -31,7 +33,7 @@ function MessageDashboard({ contacts, user, initialMessages }: props) {
   }, []);
 
   return (
-    <div className=" md:h-screen flex flex-col md:flex-row ">
+    <div className=" md:h-[calc(100svh)] flex flex-col md:flex-row ">
       {/* Chat Sidebar */}
       <div className="w-full h-full text-black md:w-1/3 bg-white md:border-r dark:bg-gray-900 dark:text-white">
         {/* Chat Sidebar -> Chat Header */}
@@ -45,13 +47,27 @@ function MessageDashboard({ contacts, user, initialMessages }: props) {
       </div>
 
       {/* Chat Sidebar -> Message Container */}
-      <div className="hidden h-screen flex-col bg-gray-100 dark:bg-gray-900 md:w-2/3 md:flex">
-        <MessageContainerHeader contacts={contactLists} />
-        <MessageContainer
-          contacts={contactLists}
-          user={user}
-          initialMessages={initialMessages}
-        />
+      <div className="hidden h-[calc(100svh)] flex-col bg-green-400 dark:bg-gray-800 md:w-2/3 md:flex">
+        {clickedContact ? (
+          <>
+            <MessageContainerHeader contacts={contactLists} />
+            <MessageContainer
+              contacts={contactLists}
+              user={user}
+              initialMessages={initialMessages}
+            />
+          </>
+        ) : (
+          //provide Chithi welcome message
+          <div className="flex h-full flex-col items-center justify-center gap-4">
+            <h1 className="text-2xl font-bold text-gray-700 dark:text-gray-300">
+              Welcome to Chithi!
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400">
+              Select a contact to start chatting
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

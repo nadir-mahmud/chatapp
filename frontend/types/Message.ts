@@ -1,8 +1,8 @@
-type messageStatus = "sent" | "delivered" | "seen";
+type messageStatus = "sending" | "sent" | "delivered" | "seen";
 export interface Message {
-  contactId: string;
+  contactId: string | null;
   sender: string;
-  receiver: string;
+  receiver: string | null;
   status?: messageStatus;
   text: string;
   readBy?: string[];
