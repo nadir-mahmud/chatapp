@@ -7,9 +7,11 @@ import authRoute from "./routes/authRoute.js";
 import contactRoute from "./routes/contactRoute.js";
 import messageRoute from "./routes/messageRoute.js";
 import searchRoute from "./routes/searchRoute.js";
-import { createServer } from "http";
-import { setupSocket } from "./socket/socketSetup.js";
-import { Server } from "socket.io";
+
+// REMOVE these for Vercel, as WebSockets won't work here:
+// import { createServer } from "http";
+// import { setupSocket } from "./socket/socketSetup.js";
+// import { Server } from "socket.io";
 
 dotenv.config();
 
@@ -19,32 +21,32 @@ connectDB();
 const app = express();
 app.use(express.json());
 
-//app.use(cookieParser());
-
 const corsOptions = {
-  origin: "*", // Allow only this origin
-  methods: "GET,POST,PUT,DELETE", // Allowed HTTP methods
-  credentials: true, // Allow cookies to be sent
+  origin: "*",
+  methods: "GET,POST,PUT,DELETE",
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
-const httpServer = createServer(app);
 
-const io = new Server(httpServer, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
-
-setupSocket(io);
-
+// HTTP Routing
 app.use("/api/auth", authRoute);
 app.use("/api/contact", contactRoute);
 app.use("/api/message", messageRoute);
 app.use("/api/", searchRoute);
 
-const PORT = process.env.PORT || 5000;
-httpServer.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
+// A simple test route to ensure your Vercel rewrite is pointing to the right place
+app.get("/", (req, res) => {
+  res.send("Express server is running perfectly on Vercel!");
+});
 
+// CRITICAL FOR LOCAL TESTING VS VERCEL PRODUCTION:
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () =>
+    console.log(`🚀 Local Server running on port ${PORT}`),
+  );
+}
+
+// CRITICAL FOR VERCEL: Export the app instance
 export default app;
