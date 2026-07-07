@@ -46,3 +46,5 @@ app.use("/api/", searchRoute);
 
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
+
+export default app;
